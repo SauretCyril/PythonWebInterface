@@ -1,0 +1,201 @@
+<html><head><base href="https://www.example.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grille d'images interactive avec drag et drop</title>
+<link rel="stylesheet" href="style3.css">
+</head>
+<body>
+  <header>
+    <h1>Grille d'images interactive</h1>
+  </header>
+  <div class="content-wrapper">
+    <div class="main-content">
+      <div class="grid-header">
+        <h2>Première Grille</h2>
+        <div class="path-input-container">
+          <label for="image-path-input">Chemin du répertoire d'images:</label>
+          <input type="text" id="image-path-input" placeholder="Entrez le chemin du répertoire">
+        </div>
+      </div>
+      <div class="grid" id="image-grid-1"></div>
+      <!-- <div class="grid-separator"></div> -->
+    </div>
+  </div>
+  <div class="overlay" id="overlay"></div>
+  <script>
+    const imageGrid1 = document.getElementById('image-grid-1');
+    
+    const overlay = document.getElementById('overlay');
+    const imagePathInput1 = document.getElementById('image-path-input');
+    
+
+    const images = [
+      { url: "https://picsum.photos/id/1/800/600", name: "Ordinateur portable" },
+      { url: "https://picsum.photos/id/2/800/600", name: "Appareil photo vintage" },
+      { url: "https://picsum.photos/id/3/800/600", name: "Tasse de café" },
+      { url: "https://picsum.photos/id/4/800/600", name: "Livre et lunettes" },
+      { url: "https://picsum.photos/id/5/800/600", name: "Paysage naturel" },
+      { url: "https://picsum.photos/id/6/800/600", name: "Instruments de musique" },
+      { url: "https://picsum.photos/id/7/800/600", name: "Fruits frais" },
+      { url: "https://picsum.photos/id/8/800/600", name: "Ville la nuit" },
+      { url: "https://picsum.photos/id/9/800/600", name: "Animaux sauvages" },
+      { url: "https://picsum.photos/id/10/800/600", name: "Plage paradisiaque" }
+    ];
+
+    let currentRow1, currentRow2;
+    let enlargedImage = null;
+    let draggedItem = null;
+    let rowCounter1 = 0, rowCounter2 = 0;
+
+    function createImageElement(imageObj, gridId) {
+      const container = document.createElement('div');
+      container.className = 'image-container';
+      container.draggable = true;
+
+      container.dataset.gridId = gridId;
+      container.dataset.originalRow = gridId === 'image-grid-1' ? rowCounter1 : rowCounter2;
+      container.dataset.originalPosition = (gridId === 'image-grid-1' ? currentRow1 : currentRow2) ? (gridId === 'image-grid-1' ? currentRow1 : currentRow2).children.length : 0;
+
+      const img = document.createElement('img');
+      img.src = imageObj.url;
+      img.alt = imageObj.name;
+
+      const nameBar = document.createElement('div');
+      nameBar.className = 'image-name';
+      nameBar.textContent = imageObj.name;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.innerHTML = '&times;';
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        container.remove();
+        reorganizeGrid(container.dataset.gridId);
+      });
+      container.appendChild(deleteBtn);
+
+      container.addEventListener('dragstart', dragStart);
+      container.addEventListener('dragend', dragEnd);
+      container.appendChild(img);
+      container.appendChild(nameBar);
+      container.addEventListener('click', () => toggleEnlarge(container));
+
+      return container;
+    }
+
+    function dragStart(e) {
+      draggedItem = this;
+      setTimeout(() => this.classList.add('dragging'), 0);
+    }
+
+    function dragEnd(e) {
+      draggedItem.classList.remove('dragging');
+      draggedItem = null;
+    }
+
+    function dragOver(e) {
+      e.preventDefault();
+      const row = this;
+      const afterElement = getDragAfterElement(row, e.clientX);
+      const draggable = document.querySelector('.dragging');
+      if (afterElement == null) {
+        row.appendChild(draggable);
+      } else {
+        row.insertBefore(draggable, afterElement);
+      }
+    }
+
+    function getDragAfterElement(row, x) {
+      const draggableElements = [...row.querySelectorAll('.image-container:not(.dragging)')];
+
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = x - box.left - box.width / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function toggleEnlarge(container) {
+      if (enlargedImage) {
+        document.body.removeChild(enlargedImage);
+        enlargedImage = null;
+        overlay.style.display = 'none';
+      } else {
+        enlargedImage = container.cloneNode(true);
+        enlargedImage.classList.add('enlarged');
+        document.body.appendChild(enlargedImage);
+        overlay.style.display = 'block';
+        enlargedImage.addEventListener('click', () => toggleEnlarge(enlargedImage));
+      }
+    }
+
+    function addRandomImage(gridId) {
+      const randomIndex = Math.floor(Math.random() * images.length);
+      const randomImage = images[randomIndex];
+      const imageElement = createImageElement(randomImage, gridId);
+      
+      const targetGrid = document.getElementById(gridId);
+      const currentRow = gridId === 'image-grid-1' ? currentRow1 : currentRow2;
+      
+      if (!currentRow || currentRow.children.length === 10) {
+        const newRow = document.createElement('div');
+        newRow.className = 'row';
+        newRow.addEventListener('dragover', dragOver);
+        targetGrid.appendChild(newRow);
+        if (gridId === 'image-grid-1') {
+          currentRow1 = newRow;
+          rowCounter1++;
+        } else {
+          currentRow2 = newRow;
+          rowCounter2++;
+        }
+      }
+      
+      (gridId === 'image-grid-1' ? currentRow1 : currentRow2).appendChild(imageElement);
+    }
+
+    function reorganizeGrid(gridId) {
+      const targetGrid = document.getElementById(gridId);
+      const allImages = Array.from(targetGrid.querySelectorAll('.image-container'));
+      targetGrid.innerHTML = '';
+      let currentRow = null;
+      let rowCounter = 0;
+      
+      allImages.forEach((image, index) => {
+        if (!currentRow || currentRow.children.length === 10) {
+          currentRow = document.createElement('div');
+          currentRow.className = 'row';
+          currentRow.addEventListener('dragover', dragOver);
+          targetGrid.appendChild(currentRow);
+          rowCounter++;
+        }
+        image.dataset.gridId = gridId;
+        image.dataset.originalRow = rowCounter - 1;
+        image.dataset.originalPosition = currentRow.children.length;
+        currentRow.appendChild(image);
+      });
+      
+      if (gridId === 'image-grid-1') {
+        currentRow1 = currentRow;
+        rowCounter1 = rowCounter;
+      } else {
+        currentRow2 = currentRow;
+        rowCounter2 = rowCounter;
+      }
+    }
+
+   
+
+    overlay.addEventListener('click', () => {
+      if (enlargedImage) {
+        toggleEnlarge(enlargedImage);
+      }
+    });
+
+  </script>
+</body>
+</html>

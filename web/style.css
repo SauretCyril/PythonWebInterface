@@ -1,0 +1,95 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial;
+}
+
+body {
+    height: 100vh;
+    color: #fff;
+    background: #111;
+    background: -webkit-linear-gradient(to top, #222, #111);
+    background: linear-gradient(to top, #222, #111);
+    background-size: cover;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+
+#input_number {
+    display: block;
+    border: 3px solid rgb(60, 225, 225);
+    width: 300px;
+    height: 50px;
+    margin-top: 50px;
+    text-align: center;
+    font-size: 16px;
+    position: absolute;
+    right: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 5px;
+    background: transparent;
+    outline: none;
+}
+
+#input_number::placeholder, INPUT[type="text"] {
+    color: #fff;
+}
+
+#calculate_button {
+    display: block;
+    width: 150px;
+    height: 50px;
+    border: 3px solid rgb(60, 225, 225);
+    border-radius: 5px;
+    margin-top: 130px;
+    position: absolute;
+    right: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgb(60, 225, 225);
+    outline: none;
+    text-transform: uppercase;
+    color: #222;
+    font-weight: 900;
+}
+
+#calculate_button:hover {
+    cursor: pointer;
+}
+
+#output-info {
+    /* border: 2px solid red; */
+    max-width: 100%;
+    height: 55vh;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: left;
+    font-size: 18px;
+}
+
+#output-info ul {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+}
+
+#output-info ul li {
+    list-style: none;
+    padding-top: 10px;
+}
+
+#output-info ul li p {
+    font-weight: 900;
+    color: rgb(60, 225, 225);
+}
+
+#output-info ul li p span {
+    color: #fff;
+    padding-left: 10px;
+    font-weight: 300;
+}

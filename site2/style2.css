@@ -1,0 +1,20 @@
+.image-container {
+    display: inline-block;
+    position: relative;
+    margin: 10px;
+}
+.image-container img {
+    
+    width: 150px;
+    height: auto;
+}
+.delete-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
