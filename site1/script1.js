@@ -14,14 +14,15 @@ document.getElementById('directoryInput').addEventListener('change', function(ev
 
                 const img = document.createElement('img');
                 img.src = e.target.result;
-                img.style.maxWidth = '150px'; // Adjust as needed
+                //img.style.maxWidth = '150px'; // Adjust as needed
                 img.style.margin = '10px';
                 img.addEventListener('click', () => toggleEnlarge(img));
                 const button = document.createElement('button');
                 button.textContent = '🗑️';
                 button.classList.add('delete-button');
                 button.onclick = function() {
-                    div.remove();
+                    //div.remove();
+                    remove_image(img);
                 };
 
                 div.appendChild(img);
@@ -36,6 +37,7 @@ document.getElementById('directoryInput').addEventListener('change', function(ev
 
 
 function toggleEnlarge(container) {
+    
     if (enlargedImage) {
       document.body.removeChild(enlargedImage);
       enlargedImage = null;
@@ -48,3 +50,32 @@ function toggleEnlarge(container) {
       enlargedImage.addEventListener('click', () => toggleEnlarge(enlargedImage));
     }
   }
+
+  
+function remove_image(div) {
+    const filename= div.src
+    const fs = require('fs');
+    const readline = require('readline');
+
+    const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('Voulez-vous supprimer le fichier ? (oui/non) ', (answer) => {
+    if (answer.toLowerCase() === 'oui') {
+        fs.unlink(filename, (err) => {
+            if (err) {
+                console.error(`Erreur lors de la suppression du fichier: ${err.message}`);
+            } else {
+                console.log('Fichier supprimé avec succès.');
+            }
+        });
+    } else {
+        console.log('Suppression annulée.');
+    }
+    rl.close();
+});
+
+
+}
