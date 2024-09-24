@@ -1,5 +1,10 @@
+// import fs from 'fs';
+// Uncaught SyntaxError: Unexpected token import
 let enlargedImage = null;
-const overlay = document.getElementById('overlay');
+
+
+
+
 document.getElementById('directoryInput').addEventListener('change', function(event) {
     const files = event.target.files;
     const imageContainer = document.getElementById('imageContainer');
@@ -7,6 +12,7 @@ document.getElementById('directoryInput').addEventListener('change', function(ev
 
     Array.from(files).forEach(file => {
         if (file.type.startsWith('image/')) {
+            
             const reader = new FileReader();
             reader.onload = function(e) {
                 const div = document.createElement('div');
@@ -18,12 +24,27 @@ document.getElementById('directoryInput').addEventListener('change', function(ev
                 img.style.margin = '10px';
                 img.addEventListener('click', () => toggleEnlarge(img));
                 const button = document.createElement('button');
+              
+
                 button.textContent = '🗑️';
                 button.classList.add('delete-button');
                 button.onclick = function() {
                     //div.remove();
-                    remove_image(img);
+                    showConfirmDialog(file,'Voulez-vous vraiment supprimer cette image ?', () => {
+                        
+                      });
+                    
+                    //remove_image(img);
                 };
+                // button.addEventListener('click', (e) => {
+                //     e.stopPropagation();
+                //     showConfirmDialog('Voulez-vous vraiment supprimer cette image ?', () => {
+                //       container.remove();
+                //       //reorganizeGrid(container.dataset.gridId);
+                //     });
+                //   });
+
+
 
                 div.appendChild(img);
                 div.appendChild(button);
@@ -31,6 +52,7 @@ document.getElementById('directoryInput').addEventListener('change', function(ev
                 imageContainer.appendChild(div);
             };
             reader.readAsDataURL(file);
+            
         }
     });
 });
@@ -51,31 +73,33 @@ function toggleEnlarge(container) {
     }
   }
 
-  
-function remove_image(div) {
-    const filename= div.src
-    const fs = require('fs');
-    const readline = require('readline');
+  function showConfirmDialog(file,message, onConfirm) {
+    const dialog = document.createElement('div');
+    const fileobj = file;
+    dialog.className = 'confirm-dialog';
+    dialog.innerHTML = `
+      <p>${message}</p>
+      <button id="confirm-yes">Oui</button>
+      <button id="confirm-no">Non</button>
+      <p>${fileobj.path}</p>
+    `;
+    
+    document.body.appendChild(dialog);
+    
+    const yesButton = dialog.querySelector('#confirm-yes');
+    const noButton = dialog.querySelector('#confirm-no');
+    
+    yesButton.addEventListener('click', () => {
+      document.body.removeChild(dialog);
 
-    const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+      return true;
+     
+    });
+    
+    noButton.addEventListener('click', () => {
+        document.body.removeChild(dialog);
+        return false;
+        
+    });
+  }
 
-rl.question('Voulez-vous supprimer le fichier ? (oui/non) ', (answer) => {
-    if (answer.toLowerCase() === 'oui') {
-        fs.unlink(filename, (err) => {
-            if (err) {
-                console.error(`Erreur lors de la suppression du fichier: ${err.message}`);
-            } else {
-                console.log('Fichier supprimé avec succès.');
-            }
-        });
-    } else {
-        console.log('Suppression annulée.');
-    }
-    rl.close();
-});
-
-
-}
